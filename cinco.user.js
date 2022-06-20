@@ -6,16 +6,16 @@
 // @match          https://*.salesforce.com/*
 // @match          http://*.salesforce.com/*
 // @author         Carles Garcia Floriach (carles.garcia@enel.com)
-// @version        0.2
+// @version        0.3
 // @require        https://code.jquery.com/jquery-latest.js
 // @require        //https://cdn.tailwindcss.com
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
 
-window.setInterval(documentos, 500);
-window.setInterval(prerrequisitos, 500);
-window.setInterval(estudios, 500);
+window.setInterval(documentos, 600);
+window.setInterval(prerrequisitos, 600);
+window.setInterval(estudios, 600);
 
 function documentos() {
     var elements = findByXpath("//a[text()='Descargar']");
