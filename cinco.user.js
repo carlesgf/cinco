@@ -2,20 +2,18 @@
 // @name           CINCO
 // @namespace      https://accesosede.my.salesforce.com/
 // @description    Mejoras en CUATRO
-// @match          https://accesosede.lightning.force.com/*
-// @match          https://*.salesforce.com/*
-// @match          http://*.salesforce.com/*
+// @match          http*://*.force.com/*
+// @match          http*://*.salesforce.com/*
 // @author         Carles Garcia Floriach (carles.garcia@enel.com)
-// @version        0.3
-// @require        https://code.jquery.com/jquery-latest.js
-// @require        //https://cdn.tailwindcss.com
+// @version        0.4
+// @require        //https://code.jquery.com/jquery-latest.js
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
 
-window.setInterval(documentos, 600);
-window.setInterval(prerrequisitos, 600);
-window.setInterval(estudios, 600);
+window.setInterval(documentos, 500);
+window.setInterval(prerrequisitos, 500);
+window.setInterval(estudios, 500);
 
 function documentos() {
     var elements = findByXpath("//a[text()='Descargar']");
@@ -47,46 +45,42 @@ function documentos() {
     for (i = 0; i < elements.snapshotLength; i++) {
         elements.snapshotItem(i).closest('tr').style.backgroundColor = '#AA000055';
     }
-    /*while (elementActual) {
-        elementActual.style.background = 'red';
-        elementActual.href = elementActual.href.replace('http:', 'https:');
-        elementActual = elements.iterateNext();
-    }
-    $("a:contains(Descargar)").each(function() {
-        console.log('aa');
-        var hrefCorrecto = $(this).attr('href').replace('http:', 'https:');
-        $(this).attr('href', hrefCorrecto);
-        $(this).css('background-color', 'yellow');
-    });
-    */
 }
 
 function prerrequisitos() {
-
-    var elements = findByXpath("//tr[starts-with(@data-row-key-value,'a2c2o')]");
+    var elements = findByXpath("//a[contains(@href,'a2c2o')]");
 
     for (var i = 0; i < elements.snapshotLength; i++) {
-        if (elements.snapshotItem(i).children[5].innerText == "") {
-            elements.snapshotItem(i).style.backgroundColor = '#AA000055';
-        } else {
-            elements.snapshotItem(i).style.backgroundColor = '#00AA0055';
+        var fila = elements.snapshotItem(i).closest('tr');
+
+        if (fila) {
+            var numColumnas = fila.children.length;
+
+            if (fila.children[numColumnas - 3].innerText == "") {
+                fila.style.backgroundColor = '#AA000055';
+            } else {
+                fila.style.backgroundColor = '#00AA0055';
+            }
         }
     }
-
 }
 
 function estudios() {
-
-    var elements = findByXpath("//tr[starts-with(@data-row-key-value,'0062o')]");
+    var elements = findByXpath("//a[contains(@href,'0062o')]");
 
     for (var i = 0; i < elements.snapshotLength; i++) {
-        if (elements.snapshotItem(i).children[4].innerText == "Seleccionado") {
-            elements.snapshotItem(i).style.backgroundColor = '#00AA0055';
-        } else {
-            //elements.snapshotItem(i).style.backgroundColor = '#AA000055';
+        var fila = elements.snapshotItem(i).closest('tr');
+
+        if (fila) {
+            var numColumnas = fila.children.length;
+
+            if (fila.children[numColumnas - 5].innerText == "Seleccionado") {
+                fila.style.backgroundColor = '#00AA0055';
+            } else {
+                fila.style.backgroundColor = '#AAAA0055';
+            }
         }
     }
-
 }
 
 function findByXpath(xpath) {
