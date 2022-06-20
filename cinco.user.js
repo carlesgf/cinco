@@ -18,7 +18,6 @@ window.setInterval(prerrequisitos, 500);
 window.setInterval(estudios, 500);
 
 function documentos() {
-
     var elements = findByXpath("//a[text()='Descargar']");
 
     for (var i = 0; i < elements.snapshotLength; i++) {
