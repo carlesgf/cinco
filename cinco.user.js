@@ -6,7 +6,7 @@
 // @match          https://*.salesforce.com/*
 // @match          http://*.salesforce.com/*
 // @author         Carles Garcia Floriach (carles.garcia@enel.com)
-// @version        0.1
+// @version        0.2
 // @require        https://code.jquery.com/jquery-latest.js
 // @require        //https://cdn.tailwindcss.com
 // @grant          GM_addStyle
