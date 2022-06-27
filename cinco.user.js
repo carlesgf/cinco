@@ -5,7 +5,7 @@
 // @match          http*://*.force.com/*
 // @match          http*://*.salesforce.com/*
 // @author         Carles Garcia Floriach (carles.garcia@enel.com)
-// @version        0.4
+// @version        0.5
 // @require        //https://code.jquery.com/jquery-latest.js
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
@@ -22,7 +22,7 @@ function documentos() {
         elements.snapshotItem(i).href = elements.snapshotItem(i).href.replace('http:', 'https:');
     }
 
-    elements = findByXpath("//span[starts-with(text(),'Válido')] | //lst-formatted-text[starts-with(text(),'Válido')]");
+    elements = findByXpath("//span[text()='Válido'] | //lst-formatted-text[text()='Válido']");
 
     for (i = 0; i < elements.snapshotLength; i++) {
         elements.snapshotItem(i).closest('tr').style.backgroundColor = '#00AA0055';
@@ -55,7 +55,7 @@ function prerrequisitos() {
 
         if (fila) {
             var numColumnas = fila.children.length;
-
+            console.log(fila.children[numColumnas - 3].innerText);
             if (fila.children[numColumnas - 3].innerText == "") {
                 fila.style.backgroundColor = '#AA000055';
             } else {
@@ -66,7 +66,7 @@ function prerrequisitos() {
 }
 
 function estudios() {
-    var elements = findByXpath("//a[contains(@href,'0062o')]");
+    var elements = findByXpath("//a[contains(@href,'r/0062o')]");
 
     for (var i = 0; i < elements.snapshotLength; i++) {
         var fila = elements.snapshotItem(i).closest('tr');
