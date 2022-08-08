@@ -5,7 +5,7 @@
 // @match          http*://*.force.com/*
 // @match          http*://*.salesforce.com/*
 // @author         Carles Garcia Floriach (carles.garcia@enel.com)
-// @version        0.5
+// @version        0.6
 // @require        //https://code.jquery.com/jquery-latest.js
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
@@ -48,18 +48,22 @@ function documentos() {
 }
 
 function prerrequisitos() {
-    var elements = findByXpath("//a[contains(@href,'a2c2o')]");
+    var tablas = findByXpath("//table[@aria-label = 'Pre-requisitos']");
 
-    for (var i = 0; i < elements.snapshotLength; i++) {
-        var fila = elements.snapshotItem(i).closest('tr');
+    for (var i = 0; i < tablas.snapshotLength; i++) {
 
-        if (fila) {
-            var numColumnas = fila.children.length;
-            console.log(fila.children[numColumnas - 3].innerText);
-            if (fila.children[numColumnas - 3].innerText == "") {
-                fila.style.backgroundColor = '#AA000055';
-            } else {
-                fila.style.backgroundColor = '#00AA0055';
+        var elements = findByXpath("*//a[contains(@href,'a2c2o')]", tablas.snapshotItem(i));
+        var posicionFrf = findByXpath("*//span[@title = 'Fecha real fin']", tablas.snapshotItem(i)).snapshotItem(0).closest('th').cellIndex;
+
+        for (var j = 0; j < elements.snapshotLength; j++) {
+            var fila = elements.snapshotItem(j).closest('tr');
+
+            if (fila) {
+                if (fila.children[posicionFrf].innerText == "") {
+                    fila.style.backgroundColor = '#AA000055';
+                } else {
+                    fila.style.backgroundColor = '#00AA0055';
+                }
             }
         }
     }
@@ -83,6 +87,6 @@ function estudios() {
     }
 }
 
-function findByXpath(xpath) {
-    return document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+function findByXpath(xpath, base = document) {
+    return document.evaluate(xpath, base, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 }
