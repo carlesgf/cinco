@@ -52,7 +52,7 @@ function prerrequisitos() {
 
     for (var i = 0; i < tablas.snapshotLength; i++) {
 
-        var elements = findByXpath("*//a[contains(@href,'a2c2o')]", tablas.snapshotItem(i));
+        var elements = findByXpath("*//a[contains(@href,'/a2c')]", tablas.snapshotItem(i));
         var posicionFrf = findByXpath("*//span[@title = 'Fecha real fin']", tablas.snapshotItem(i)).snapshotItem(0).closest('th').cellIndex;
 
         for (var j = 0; j < elements.snapshotLength; j++) {
