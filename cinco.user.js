@@ -5,88 +5,180 @@
 // @match          http*://*.force.com/*
 // @match          http*://*.salesforce.com/*
 // @author         Carles Garcia Floriach (carles.garcia@enel.com)
-// @version        0.6
+// @version        1.0
 // @require        //https://code.jquery.com/jquery-latest.js
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
 
-window.setInterval(documentos, 500);
-window.setInterval(prerrequisitos, 500);
-window.setInterval(estudios, 500);
+(function() {
+    let debounceTimeout = null;
+    const DEBOUNCE_DELAY = 10;
 
-function documentos() {
-    var elements = findByXpath("//a[text()='Descargar']");
+    const observer = new MutationObserver(() => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            tablaPrerrequisitos();
+            tablaEstudios();
+            tablaDocumentosEstado();
+            tablaDocumentosNombre();
+            //expedienteNNSS();
+            //expedienteSAT();
 
-    for (var i = 0; i < elements.snapshotLength; i++) {
-        elements.snapshotItem(i).href = elements.snapshotItem(i).href.replace('http:', 'https:');
-    }
+        }, DEBOUNCE_DELAY);
+    });
 
-    elements = findByXpath("//span[text()='Válido'] | //lst-formatted-text[text()='Válido']");
+    observer.observe(document.body, { childList: true, subtree: true });
 
-    for (i = 0; i < elements.snapshotLength; i++) {
-        elements.snapshotItem(i).closest('tr').style.backgroundColor = '#00AA0055';
-    }
+    function tablaPrerrequisitos() {
+        const tablas = getElementsByXPath("//table[@aria-label = 'Pre-requisitos']");
 
-    elements = findByXpath("//span[text()='No Válido'] | //lst-formatted-text[text()='No válido']");
+        for (let i = 0; i < tablas.length; i++) {
+            let tabla = tablas[i];
 
-    for (i = 0; i < elements.snapshotLength; i++) {
-        elements.snapshotItem(i).closest('tr').style.backgroundColor = '#AA000055';
-    }
+            let spanFrf = getElementsByXPath("*//span[@title = 'Fecha real fin']", tabla)[0];
+            if (!spanFrf) continue;
+            let posicionFrf = spanFrf.closest('th').cellIndex;
 
-    elements = findByXpath("//span[text()='Subiendo'] | //lst-formatted-text[text()='Subiendo']");
+            let filas = getElementsByXPath("*//a[contains(@href,'/a2c')]", tabla);
 
-    for (i = 0; i < elements.snapshotLength; i++) {
-        elements.snapshotItem(i).closest('tr').style.backgroundColor = '#AAAA0055';
-    }
+            for (let j = 0; j < filas.length; j++) {
+                let fila = filas[j].closest('tr');
 
-    elements = findByXpath("//span[text()='Error Subida'] | //lst-formatted-text[text()='Error Subida']");
-
-    for (i = 0; i < elements.snapshotLength; i++) {
-        elements.snapshotItem(i).closest('tr').style.backgroundColor = '#AA000055';
-    }
-}
-
-function prerrequisitos() {
-    var tablas = findByXpath("//table[@aria-label = 'Pre-requisitos']");
-
-    for (var i = 0; i < tablas.snapshotLength; i++) {
-
-        var elements = findByXpath("*//a[contains(@href,'/a2c')]", tablas.snapshotItem(i));
-        var posicionFrf = findByXpath("*//span[@title = 'Fecha real fin']", tablas.snapshotItem(i)).snapshotItem(0).closest('th').cellIndex;
-
-        for (var j = 0; j < elements.snapshotLength; j++) {
-            var fila = elements.snapshotItem(j).closest('tr');
-
-            if (fila) {
-                if (fila.children[posicionFrf].innerText == "") {
-                    fila.style.backgroundColor = '#AA000055';
-                } else {
-                    fila.style.backgroundColor = '#00AA0055';
+                if (fila) {
+                    if (fila.children[posicionFrf].innerText == "") {
+                        fila.style.backgroundColor = '#AA000055';
+                    } else {
+                        fila.style.backgroundColor = '#00AA0055';
+                    }
                 }
             }
         }
     }
-}
 
-function estudios() {
-    var elements = findByXpath("//a[contains(@href,'r/0062o')]");
+    function tablaEstudios() {
+        const tablas = getElementsByXPath("//table[@aria-label = 'Estudios Técnicos']");
 
-    for (var i = 0; i < elements.snapshotLength; i++) {
-        var fila = elements.snapshotItem(i).closest('tr');
+        for (let i = 0; i < tablas.length; i++) {
+            let tabla = tablas[i];
 
-        if (fila) {
-            var numColumnas = fila.children.length;
+            let spanEstado = getElementsByXPath("*//span[@title = 'Estado']", tabla)[0];
+            if (!spanEstado) continue;
+            let posicionEstado = spanEstado.closest('th').cellIndex;
 
-            if (fila.children[numColumnas - 5].innerText == "Seleccionado") {
-                fila.style.backgroundColor = '#00AA0055';
-            } else {
-                fila.style.backgroundColor = '#AAAA0055';
+            let filas = getElementsByXPath("*//a[contains(@href,'/006')]", tabla);
+
+            for (let j = 0; j < filas.length; j++) {
+                let fila = filas[j].closest('tr');
+
+                if (fila) {
+                    if (fila.children[posicionEstado].innerText == "Seleccionado") {
+                        fila.style.backgroundColor = '#00AA0055';
+                    } else {
+                        fila.style.backgroundColor = '#AA000055';
+                    }
+                }
             }
         }
     }
-}
 
-function findByXpath(xpath, base = document) {
-    return document.evaluate(xpath, base, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-}
+    function tablaDocumentosEstado() {
+        const tablas = getElementsByXPath("//table[starts-with(@aria-label, 'Documentos')]");
+
+        for (let i = 0; i < tablas.length; i++) {
+            let tabla = tablas[i];
+
+            let spanEstado = getElementsByXPath("*//span[@title = 'Estado']", tabla)[0];
+            if (!spanEstado) continue;
+            let posicionEstado = spanEstado.closest('th').cellIndex;
+
+            let filas = getElementsByXPath("*//a[contains(@href,'/a1x')]", tabla);
+
+            for (let j = 0; j < filas.length; j++) {
+                let fila = filas[j].closest('tr');
+
+                if (fila) {
+                    if (fila.children[posicionEstado].innerText.startsWith("Válido")) {
+                        fila.style.backgroundColor = '#00AA0055';
+                    } else {
+                        fila.style.backgroundColor = '#AA000055';
+                    }
+                }
+            }
+        }
+    }
+
+    function tablaDocumentosNombre() {
+        const tablas = getElementsByXPath("//table[starts-with(@aria-label, 'Documentos')]");
+
+        for (let i = 0; i < tablas.length; i++) {
+            let tabla = tablas[i];
+
+            let filas = getElementsByXPath("//span[contains(., 'DAT') and contains(., 'EST')]", tabla);
+
+            for (let j = 0; j < filas.length; j++) {
+                let fila = filas[j].closest('td');
+
+                if (fila) {
+                    fila.style.backgroundColor = '#7F7FFF7F';
+                    fila.style.fontWeight = 700;
+                }
+            }
+
+            filas = getElementsByXPath("//span[contains(., 'EXPLOT') or contains(., 'EXECUT') or contains(., 'EJECUT') or (contains(., 'INICI') and contains(., 'TERC'))]", tabla);
+
+            for (let j = 0; j < filas.length; j++) {
+                let fila = filas[j].closest('td');
+
+                if (fila) {
+                    fila.style.backgroundColor = '#00AAAA7F';
+                    fila.style.fontWeight = 700;
+                }
+            }
+        }
+    }
+
+    function expedienteNNSS() {
+        if (window.location.href.includes('a2f'))
+        {
+            resaltar("Estado", "#FFFF5055");
+
+            resaltar("Descripción del expediente", "#FFFF5055");
+            resaltar("Tipo de solicitud", "#FFFF5055");
+            resaltar("Subtipo de solicitud", "#FFFF5055");
+            resaltar("Potencia Solicitada consumo (kW)", "#FFFF5055");
+
+            resaltar("Fecha de Aceptación", "#FFFF5055");
+
+            let header = getElementsByXPath("//div[contains(@class, 'ge-header_record-home')]");
+
+            for (let i = 0; i < header.length; i++) {
+                header[i].style.backgroundColor = "#FFAAAAFF"
+            }
+        }
+    }
+
+    function expedienteSAT() {
+        if (window.location.href.includes('a36'))
+        {
+            resaltar("Dirección Normalizada", "#FFFF5055");
+        }
+    }
+
+    function resaltar(label, color) {
+        let campos = getElementsByXPath("//records-record-layout-item[@field-label = '" + label + "']/div[1]");
+
+        for (let i = 0; i < campos.length; i++) {
+            campos[i].style.backgroundColor = color
+        }
+    }
+
+    function getElementsByXPath(xpath, parent) {
+        let results = [];
+        let query = document.evaluate(xpath, parent || document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        for (let i = 0, length = query.snapshotLength; i < length; ++i) {
+            results.push(query.snapshotItem(i));
+        }
+        return results;
+    }
+})();
